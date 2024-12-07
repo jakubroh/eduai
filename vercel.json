@@ -1,13 +1,19 @@
 {
-  "buildCommand": "prisma generate && next build",
+  "version": 2,
+  "buildCommand": "npm run build",
   "installCommand": "npm install",
   "framework": "nextjs",
   "regions": ["fra1"],
   "env": {
-    "POSTGRES_PRISMA_URL": "DATABASE_URL",
-    "NEXTAUTH_URL": "https://${VERCEL_URL}",
+    "DATABASE_URL": "@database_url",
+    "NEXTAUTH_URL": "${VERCEL_URL}",
     "NEXTAUTH_SECRET": "@nextauth_secret",
     "ANTHROPIC_API_KEY": "@anthropic_api_key",
     "ENCRYPTION_KEY": "@encryption_key"
+  },
+  "build": {
+    "env": {
+      "NEXT_TELEMETRY_DISABLED": "1"
+    }
   }
 } 

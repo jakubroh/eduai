@@ -35,6 +35,7 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['monaco-editor'],
   },
+  output: 'standalone',
 }
 
 module.exports = nextConfig 
