@@ -1,0 +1,77 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model School {
+  id              String    @id @default(cuid())
+  name            String
+  address         String
+  registrationCode String?  @unique
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  isApproved      Boolean   @default(false)
+  credits         Int       @default(0)
+  users           User[]
+  creditHistory   CreditHistory[]
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  password      String
+  role          Role      @default(USER)
+  schoolId      String?
+  school        School?   @relation(fields: [schoolId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  chats         Chat[]
+}
+
+model Chat {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Message {
+  id        String    @id @default(cuid())
+  content   String
+  role      MessageRole
+  chatId    String
+  chat      Chat      @relation(fields: [chatId], references: [id])
+  createdAt DateTime  @default(now())
+}
+
+model CreditHistory {
+  id        String    @id @default(cuid())
+  schoolId  String
+  school    School    @relation(fields: [schoolId], references: [id])
+  amount    Int
+  type      String    // "ADD" nebo "SUBTRACT"
+  createdAt DateTime  @default(now())
+}
+
+enum Role {
+  ADMIN
+  SCHOOL_ADMIN
+  USER
+}
+
+enum MessageRole {
+  user
+  assistant
+}
+
+model Settings {
+  key   String @id
+  value String
+} 

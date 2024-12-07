@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+}
+
+/* Základní styly pro editor */
+.monaco-editor {
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+/* Styly pro matematické vzorce */
+.mq-math-mode {
+  font-size: 1.1em;
+}
+
+/* Styly pro zvýraznění syntaxe */
+.syntax-highlighter {
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+} 
