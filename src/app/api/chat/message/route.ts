@@ -114,26 +114,26 @@ export async function POST(req: Request) {
     const previousMessages = await getConversationContext(currentChatId);
 
     // Získání odpovědi od Claude s upravenými parametry
-    const response = await anthropic.messages.create({
-      model: "claude-2.1",
+    const response = await anthropic.beta.messages.create({
+      model: "claude-3-opus-20240229",
       max_tokens: settings.maxTokens,
       temperature: settings.temperature,
-      messages: [
-        {
-          role: "user",
-          content: `${settings.systemPrompt}\n\nUser: ${content}`
-        }
-      ]
+      system: settings.systemPrompt,
+      messages: previousMessages.map((msg: DBMessage): AnthropicMessage => ({
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content
+      })).concat([{
+        role: "user",
+        content: content
+      }])
     });
 
     // Uložení odpovědi asistenta
     assistantMessage = await prisma.message.create({
       data: {
-        content: typeof response.content === 'string' 
-          ? response.content 
-          : Array.isArray(response.content) 
-            ? response.content[0]?.text || 'Nepodařilo se získat odpověď'
-            : 'Nepodařilo se získat odpověď',
+        content: response.content[0]?.type === 'text' 
+          ? response.content[0].text 
+          : 'Nepodporovaný typ odpovědi',
         role: "assistant",
         chatId: currentChatId,
       },
