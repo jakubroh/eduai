@@ -66,6 +66,17 @@ export async function POST(req: Request) {
       );
     }
 
+    // Logování API klíče (pouze prvních a posledních 5 znaků pro bezpečnost)
+    const apiKey = process.env.ANTHROPIC_API_KEY || '';
+    console.log('API Key length:', apiKey.length);
+    console.log('API Key start:', apiKey.slice(0, 5));
+    console.log('API Key end:', apiKey.slice(-5));
+
+    // Vytvoření nové instance Anthropic s API klíčem
+    const anthropic = new Anthropic({
+      apiKey: apiKey,
+    });
+
     const { content, chatId, settings } = await req.json();
     let currentChatId = chatId;
     let userMessage;
@@ -114,6 +125,13 @@ export async function POST(req: Request) {
     const previousMessages = await getConversationContext(currentChatId);
 
     // Získání odpovědi od Claude s upravenými parametry
+    console.log('Sending request to Claude with settings:', {
+      model: "claude-3-opus-20240229",
+      max_tokens: settings.maxTokens,
+      temperature: settings.temperature,
+      system: settings.systemPrompt,
+    });
+
     const response = await anthropic.messages.create({
       model: "claude-3-opus-20240229",
       max_tokens: settings.maxTokens,
@@ -130,7 +148,7 @@ export async function POST(req: Request) {
     // Uložení odpovědi asistenta
     assistantMessage = await prisma.message.create({
       data: {
-        content: response.content[0].text,
+        content: response.content[0]?.text || 'Nepodařilo se získat odpověď',
         role: "assistant",
         chatId: currentChatId,
       },
