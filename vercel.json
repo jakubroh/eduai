@@ -7,9 +7,9 @@
   "env": {
     "DATABASE_URL": "${DATABASE_URL}",
     "NEXTAUTH_URL": "${VERCEL_URL}",
-    "NEXTAUTH_SECRET": "@nextauth_secret",
-    "ANTHROPIC_API_KEY": "@anthropic_api_key",
-    "ENCRYPTION_KEY": "@encryption_key"
+    "NEXTAUTH_SECRET": "${NEXTAUTH_SECRET}",
+    "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}",
+    "ENCRYPTION_KEY": "${ENCRYPTION_KEY}"
   },
   "build": {
     "env": {
