@@ -121,7 +121,7 @@ export async function POST(req: Request) {
 
     // Získání odpovědi od Claude s upravenými parametry
     console.log('Sending request to Claude with settings:', {
-      model: "claude-3-opus-20240229",
+      model: "claude-3.5-sonnet-20241022",
       max_tokens: settings.maxTokens,
       temperature: settings.temperature,
       system: settings.systemPrompt,
@@ -129,7 +129,7 @@ export async function POST(req: Request) {
     });
 
     const response = await anthropic.messages.create({
-      model: "claude-3-opus-20240229",
+      model: "claude-3.5-sonnet-20241022",
       max_tokens: settings.maxTokens,
       temperature: settings.temperature,
       system: settings.systemPrompt,
