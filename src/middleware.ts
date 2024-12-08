@@ -25,14 +25,20 @@ export default withAuth(
         new URL(`/auth/signin?from=${encodeURIComponent(from)}`, baseUrl)
       );
     }
+
+    return null;
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token,
+      authorized: ({ token }) => true,
     },
   }
 );
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/auth/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/auth/:path*",
+    "/((?!_next/static|_next/image|favicon.ico|api/).*)",
+  ],
 }; 
