@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import type { Prisma } from "@prisma/client";
+import { type School } from "@prisma/client";
 import toast from "react-hot-toast";
 
-type SchoolWithCount = Prisma.SchoolGetPayload<{
-  include: { _count: { select: { users: true } } };
-}>;
+type SchoolWithCount = School & {
+  _count: {
+    users: number;
+  };
+};
 
 interface CreditManagementProps {
   schools: SchoolWithCount[];
