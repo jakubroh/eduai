@@ -72,11 +72,12 @@ export async function POST(req: Request) {
     console.log('API Key start:', apiKey.slice(0, 5));
     console.log('API Key end:', apiKey.slice(-5));
 
-    // Vytvoření nové instance Anthropic s API klíčem a explicitními hlavičkami
+    // Vytvoření nové instance Anthropic s API klíčem
     const anthropic = new Anthropic({
-      apiKey: apiKey,
+      apiKey: process.env.ANTHROPIC_API_KEY || '',
       defaultHeaders: {
-        'x-api-key': apiKey
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json'
       }
     });
 
@@ -133,6 +134,7 @@ export async function POST(req: Request) {
       max_tokens: settings.maxTokens,
       temperature: settings.temperature,
       system: settings.systemPrompt,
+      messagesCount: previousMessages.length + 1
     });
 
     const response = await anthropic.messages.create({
@@ -141,6 +143,10 @@ export async function POST(req: Request) {
       temperature: settings.temperature,
       system: settings.systemPrompt,
       messages: [
+        ...previousMessages.map((msg) => ({
+          role: msg.role as 'user' | 'assistant',
+          content: msg.content
+        })),
         {
           role: "user",
           content: content
