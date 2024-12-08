@@ -119,21 +119,18 @@ export async function POST(req: Request) {
       max_tokens: settings.maxTokens,
       temperature: settings.temperature,
       system: settings.systemPrompt,
-      messages: previousMessages.map((msg: DBMessage): AnthropicMessage => ({
-        role: msg.role as 'user' | 'assistant',
-        content: msg.content
-      })).concat([{
-        role: "user",
-        content: content
-      }])
+      messages: [
+        {
+          role: "user",
+          content: content
+        }
+      ]
     });
 
     // Uložení odpovědi asistenta
     assistantMessage = await prisma.message.create({
       data: {
-        content: response.content[0]?.type === 'text' 
-          ? response.content[0].text 
-          : 'Nepodporovaný typ odpovědi',
+        content: response.content[0].text,
         role: "assistant",
         chatId: currentChatId,
       },
