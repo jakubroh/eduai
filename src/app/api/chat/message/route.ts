@@ -15,11 +15,6 @@ interface AnthropicMessage {
   content: string;
 }
 
-// Použijeme API klíč přímo z prostředí
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || '',
-});
-
 interface ChatMessage {
   id: string;
   content: string;
@@ -67,18 +62,14 @@ export async function POST(req: Request) {
     }
 
     // Logování API klíče (pouze prvních a posledních 5 znaků pro bezpečnost)
-    const apiKey = process.env.ANTHROPIC_API_KEY || '';
-    console.log('API Key length:', apiKey.length);
-    console.log('API Key start:', apiKey.slice(0, 5));
-    console.log('API Key end:', apiKey.slice(-5));
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    console.log('API Key exists:', !!apiKey);
+    console.log('API Key length:', apiKey?.length);
+    console.log('API Key prefix:', apiKey?.substring(0, 15));
 
-    // Vytvoření nové instance Anthropic s API klíčem
+    // Vytvoření instance Anthropic s API klíčem
     const anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY || '',
-      defaultHeaders: {
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json'
-      }
+      apiKey: apiKey
     });
 
     const { content, chatId, settings } = await req.json();
@@ -143,7 +134,7 @@ export async function POST(req: Request) {
       temperature: settings.temperature,
       system: settings.systemPrompt,
       messages: [
-        ...previousMessages.map((msg) => ({
+        ...previousMessages.map((msg: ChatMessage) => ({
           role: msg.role as 'user' | 'assistant',
           content: msg.content
         })),
@@ -187,11 +178,16 @@ export async function POST(req: Request) {
       userMessage,
       assistantMessage,
     });
-  } catch (error) {
-    console.error("Chyba při zpracování zprávy:", error);
+  } catch (error: any) {
+    console.error("Chyba při zpracování zprávy:", {
+      error: error.message,
+      type: error.type,
+      status: error.status,
+      headers: error.headers
+    });
     return NextResponse.json(
-      { message: "Chyba při zpracování zprávy" },
-      { status: 500 }
+      { message: `Chyba při zpracování zprávy: ${error.message}` },
+      { status: error.status || 500 }
     );
   }
 } 
