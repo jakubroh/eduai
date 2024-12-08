@@ -1,17 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { PrismaClient } from "@prisma/client";
+import type { School } from "@prisma/client";
 import toast from "react-hot-toast";
 
-type School = PrismaClient["school"]["create"]["data"];
+interface SchoolWithCount extends School {
+  _count: {
+    users: number;
+  };
+}
 
 interface CreditManagementProps {
-  schools: (School & {
-    _count: {
-      users: number;
-    };
-  })[];
+  schools: SchoolWithCount[];
   isAdmin: boolean;
   currentSchoolId?: string;
 }
