@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PrismaClient, type Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import toast from "react-hot-toast";
 
 type SchoolWithCount = Prisma.SchoolGetPayload<{
