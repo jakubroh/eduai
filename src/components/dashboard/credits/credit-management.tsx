@@ -1,14 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import type { School } from "@prisma/client";
+import type { School } from ".prisma/client";
 import toast from "react-hot-toast";
 
-interface SchoolWithCount extends School {
+type SchoolWithCount = {
+  id: string;
+  name: string;
+  address: string;
+  credits: number;
+  isApproved: boolean;
+  registrationCode: string | null;
+  createdAt: Date;
+  updatedAt: Date;
   _count: {
     users: number;
   };
-}
+};
 
 interface CreditManagementProps {
   schools: SchoolWithCount[];
