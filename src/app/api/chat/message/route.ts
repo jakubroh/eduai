@@ -115,25 +115,21 @@ export async function POST(req: Request) {
 
     // Získání odpovědi od Claude s upravenými parametry
     const response = await anthropic.messages.create({
-      model: "claude-3-opus-20240229",
+      model: "claude-2.1",
       max_tokens: settings.maxTokens,
       temperature: settings.temperature,
-      system: settings.systemPrompt,
-      messages: previousMessages.map((msg: DBMessage): AnthropicMessage => ({
-        role: msg.role as 'user' | 'assistant',
-        content: msg.content
-      })).concat([{
-        role: "user",
-        content: content
-      }])
+      messages: [
+        {
+          role: "user",
+          content: `${settings.systemPrompt}\n\nUser: ${content}`
+        }
+      ]
     });
 
     // Uložení odpovědi asistenta
     assistantMessage = await prisma.message.create({
       data: {
-        content: response.content[0]?.type === 'text' 
-          ? response.content[0].text 
-          : 'Nepodporovaný typ odpovědi',
+        content: response.content,
         role: "assistant",
         chatId: currentChatId,
       },
