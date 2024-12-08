@@ -129,20 +129,21 @@ export async function POST(req: Request) {
 
     // Získání odpovědi od Claude s upravenými parametry
     console.log('Sending request to Claude with settings:', {
-      model: "claude-2.1",
+      model: "claude-3-opus-20240229",
       max_tokens: settings.maxTokens,
       temperature: settings.temperature,
       system: settings.systemPrompt,
     });
 
     const response = await anthropic.messages.create({
-      model: "claude-2.1",
+      model: "claude-3-opus-20240229",
       max_tokens: settings.maxTokens,
       temperature: settings.temperature,
+      system: settings.systemPrompt,
       messages: [
         {
           role: "user",
-          content: `${settings.systemPrompt}\n\n${content}`
+          content: content
         }
       ]
     });
@@ -150,11 +151,9 @@ export async function POST(req: Request) {
     // Uložení odpovědi asistenta
     assistantMessage = await prisma.message.create({
       data: {
-        content: typeof response.content === 'string' 
-          ? response.content 
-          : Array.isArray(response.content) && response.content[0]?.text 
-            ? response.content[0].text 
-            : 'Nepodařilo se získat odpověď',
+        content: response.content[0]?.type === 'text' 
+          ? response.content[0].text 
+          : 'Nepodařilo se získat odpověď',
         role: "assistant",
         chatId: currentChatId,
       },
