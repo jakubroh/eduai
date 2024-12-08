@@ -129,7 +129,11 @@ export async function POST(req: Request) {
     // Uložení odpovědi asistenta
     assistantMessage = await prisma.message.create({
       data: {
-        content: response.content,
+        content: typeof response.content === 'string' 
+          ? response.content 
+          : Array.isArray(response.content) 
+            ? response.content[0]?.text || 'Nepodařilo se získat odpověď'
+            : 'Nepodařilo se získat odpověď',
         role: "assistant",
         chatId: currentChatId,
       },
