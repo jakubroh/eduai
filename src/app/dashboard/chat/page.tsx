@@ -15,6 +15,12 @@ import { debounce } from "lodash";
 
 const STORAGE_KEY = "eduai_chat_settings";
 
+const defaultSettings: ModelSettingsType = {
+  temperature: 0.7,
+  maxTokens: 1024,
+  systemPrompt: "teacher",
+};
+
 export default function ChatPage() {
   const { data: session } = useSession();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -34,12 +40,6 @@ export default function ChatPage() {
     }
     return defaultSettings;
   });
-
-  const defaultSettings: ModelSettingsType = {
-    temperature: 0.7,
-    maxTokens: 1024,
-    systemPrompt: "teacher",
-  };
 
   // Perzistence nastavení
   useEffect(() => {
