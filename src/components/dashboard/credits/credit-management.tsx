@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { School, Prisma } from "@prisma/client";
+import { PrismaClient, type Prisma } from "@prisma/client";
 import toast from "react-hot-toast";
 
 type SchoolWithCount = Prisma.SchoolGetPayload<{
@@ -69,7 +69,7 @@ export function CreditManagement({ schools: initialSchools, isAdmin, currentScho
               value={selectedSchool}
               onChange={(e) => setSelectedSchool(e.target.value)}
               className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              disabled={!isAdmin && currentSchoolId}
+              disabled={!isAdmin && currentSchoolId !== ""}
             >
               <option value="">Vyberte školu</option>
               {filteredSchools.map((school) => (
