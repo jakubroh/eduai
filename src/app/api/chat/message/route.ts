@@ -15,8 +15,9 @@ interface AnthropicMessage {
   content: string;
 }
 
+// Použijeme API klíč přímo z prostředí
 const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+  apiKey: process.env.ANTHROPIC_API_KEY || '',
 });
 
 interface ChatMessage {
@@ -113,7 +114,7 @@ export async function POST(req: Request) {
     const previousMessages = await getConversationContext(currentChatId);
 
     // Získání odpovědi od Claude s upravenými parametry
-    const response = await anthropic.beta.messages.create({
+    const response = await anthropic.messages.create({
       model: "claude-3-opus-20240229",
       max_tokens: settings.maxTokens,
       temperature: settings.temperature,
