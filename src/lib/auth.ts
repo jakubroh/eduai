@@ -3,7 +3,12 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "./prisma";
 import { compare } from "bcryptjs";
-import { Role } from "@prisma/client";
+import type { User } from "next-auth";
+
+type AuthUser = User & {
+  role: "ADMIN" | "SCHOOL_ADMIN" | "USER";
+  schoolId?: string;
+};
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
@@ -17,7 +22,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Heslo", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials): Promise<AuthUser | null> {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Vyplňte email a heslo");
         }
@@ -41,7 +46,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           role: user.role,
-          schoolId: user.schoolId,
+          schoolId: user.schoolId || undefined,
         };
       },
     }),
@@ -50,7 +55,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id as string;
-        session.user.role = token.role as Role;
+        session.user.role = token.role as AuthUser["role"];
         session.user.schoolId = token.schoolId as string | undefined;
       }
       return session;
@@ -58,8 +63,8 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role;
-        token.schoolId = user.schoolId;
+        token.role = (user as AuthUser).role;
+        token.schoolId = (user as AuthUser).schoolId;
       }
       return token;
     },
