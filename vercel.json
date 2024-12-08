@@ -6,7 +6,7 @@
   "regions": ["fra1"],
   "env": {
     "DATABASE_URL": "${DATABASE_URL}",
-    "NEXTAUTH_URL": "${VERCEL_URL}",
+    "NEXTAUTH_URL": "https://eduai-3xauikyjt-jakubrohs-projects.vercel.app",
     "NEXTAUTH_SECRET": "${NEXTAUTH_SECRET}",
     "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}",
     "ENCRYPTION_KEY": "${ENCRYPTION_KEY}"

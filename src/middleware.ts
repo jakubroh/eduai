@@ -5,9 +5,7 @@ export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
     const isAuth = !!token;
-    const isAuthPage =
-      req.nextUrl.pathname.startsWith("/auth/signin") ||
-      req.nextUrl.pathname.startsWith("/auth/register");
+    const isAuthPage = req.nextUrl.pathname.startsWith("/auth");
 
     if (isAuthPage) {
       if (isAuth) {
@@ -35,5 +33,5 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/auth/signin", "/auth/register/:path*"],
+  matcher: ["/dashboard/:path*", "/auth/:path*"],
 }; 
