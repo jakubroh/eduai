@@ -6,10 +6,11 @@ export default withAuth(
     const token = req.nextauth.token;
     const isAuth = !!token;
     const isAuthPage = req.nextUrl.pathname.startsWith("/auth");
+    const baseUrl = new URL(req.url).origin;
 
     if (isAuthPage) {
       if (isAuth) {
-        return NextResponse.redirect(new URL("/dashboard", req.url));
+        return NextResponse.redirect(new URL("/dashboard", baseUrl));
       }
       return null;
     }
@@ -21,7 +22,7 @@ export default withAuth(
       }
 
       return NextResponse.redirect(
-        new URL(`/auth/signin?from=${encodeURIComponent(from)}`, req.url)
+        new URL(`/auth/signin?from=${encodeURIComponent(from)}`, baseUrl)
       );
     }
   },
