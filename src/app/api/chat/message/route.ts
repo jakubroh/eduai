@@ -72,9 +72,12 @@ export async function POST(req: Request) {
     console.log('API Key start:', apiKey.slice(0, 5));
     console.log('API Key end:', apiKey.slice(-5));
 
-    // Vytvoření nové instance Anthropic s API klíčem
+    // Vytvoření nové instance Anthropic s API klíčem a explicitními hlavičkami
     const anthropic = new Anthropic({
       apiKey: apiKey,
+      defaultHeaders: {
+        'x-api-key': apiKey
+      }
     });
 
     const { content, chatId, settings } = await req.json();
