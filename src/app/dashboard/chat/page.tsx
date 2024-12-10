@@ -19,6 +19,7 @@ const defaultSettings: ModelSettingsType = {
   temperature: 0.7,
   maxTokens: 1024,
   systemPrompt: "teacher",
+  model: "claude-3-5-sonnet-20240620"
 };
 
 export default function ChatPage() {
