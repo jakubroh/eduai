@@ -38,6 +38,11 @@ export function DashboardNav({ user }: NavProps) {
       href: "/dashboard/chat",
       show: true,
     },
+    {
+      title: "Nastavení API",
+      href: "/dashboard/settings",
+      show: user.role === "ADMIN",
+    },
   ];
 
   return (
