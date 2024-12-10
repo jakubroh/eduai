@@ -33,6 +33,21 @@ export function ModelSettings({ settings, onSettingsChange }: ModelSettingsProps
       <h3 className="font-medium mb-2">Nastavení modelu</h3>
       <div className="space-y-4">
         <div>
+          <label className="block text-sm">Model AI</label>
+          <select
+            value={settings.model}
+            onChange={(e) => onSettingsChange({
+              ...settings,
+              model: e.target.value as ModelSettingsType["model"]
+            })}
+            className="w-full border rounded p-1"
+          >
+            <option value="claude-3-5-sonnet-20240620">Claude 3 Sonnet</option>
+            <option value="gemini-pro">Google Gemini Pro</option>
+          </select>
+        </div>
+
+        <div>
           <label className="block text-sm">Kreativita (Temperature)</label>
           <input
             type="range"

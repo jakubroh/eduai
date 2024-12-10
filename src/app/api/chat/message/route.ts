@@ -3,6 +3,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { Anthropic } from "@anthropic-ai/sdk";
+import { getGeminiClient } from "@/lib/gemini";
+import { AIModel } from "@/types/chat";
 
 // Definujeme vlastní typy pro zprávy
 interface MessageContent {
@@ -51,6 +53,66 @@ async function getConversationContext(chatId: string, limit = 10) {
   }));
 }
 
+async function processWithClaude(content: string, previousMessages: ChatMessage[], settings: any) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  console.log('API Key exists:', !!apiKey);
+  console.log('API Key length:', apiKey?.length);
+  console.log('API Key prefix:', apiKey?.substring(0, 15));
+
+  const anthropic = new Anthropic({
+    apiKey: apiKey
+  });
+
+  console.log('Sending request to Claude with settings:', {
+    model: settings.model,
+    max_tokens: settings.maxTokens,
+    temperature: settings.temperature,
+    system: settings.systemPrompt,
+    messagesCount: previousMessages.length + 1
+  });
+
+  const response = await anthropic.messages.create({
+    model: settings.model as string,
+    max_tokens: settings.maxTokens,
+    temperature: settings.temperature,
+    system: settings.systemPrompt,
+    messages: [
+      ...previousMessages.map((msg: ChatMessage) => ({
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content
+      })),
+      {
+        role: "user",
+        content: content
+      }
+    ]
+  });
+
+  return response.content[0]?.type === 'text' 
+    ? response.content[0].text 
+    : 'Nepodařilo se získat odpověď';
+}
+
+async function processWithGemini(content: string, previousMessages: ChatMessage[], settings: any) {
+  const gemini = await getGeminiClient();
+  const model = gemini.getGenerativeModel({ model: "gemini-pro" });
+
+  const chat = model.startChat({
+    history: previousMessages.map(msg => ({
+      role: msg.role,
+      parts: msg.content,
+    })),
+    generationConfig: {
+      temperature: settings.temperature,
+      maxOutputTokens: settings.maxTokens,
+    },
+  });
+
+  const result = await chat.sendMessage(content);
+  const response = await result.response;
+  return response.text();
+}
+
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -60,17 +122,6 @@ export async function POST(req: Request) {
         { status: 401 }
       );
     }
-
-    // Logování API klíče (pouze prvních a posledních 5 znaků pro bezpečnost)
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    console.log('API Key exists:', !!apiKey);
-    console.log('API Key length:', apiKey?.length);
-    console.log('API Key prefix:', apiKey?.substring(0, 15));
-
-    // Vytvoření instance Anthropic s API klíčem
-    const anthropic = new Anthropic({
-      apiKey: apiKey
-    });
 
     const { content, chatId, settings } = await req.json();
     let currentChatId = chatId;
@@ -119,38 +170,20 @@ export async function POST(req: Request) {
     // Získání kontextu předchozích zpráv
     const previousMessages = await getConversationContext(currentChatId);
 
-    // Získání odpovědi od Claude s upravenými parametry
-    console.log('Sending request to Claude with settings:', {
-      model: "claude-3-5-sonnet-20240620",
-      max_tokens: settings.maxTokens,
-      temperature: settings.temperature,
-      system: settings.systemPrompt,
-      messagesCount: previousMessages.length + 1
-    });
-
-    const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20240620",
-      max_tokens: settings.maxTokens,
-      temperature: settings.temperature,
-      system: settings.systemPrompt,
-      messages: [
-        ...previousMessages.map((msg: ChatMessage) => ({
-          role: msg.role as 'user' | 'assistant',
-          content: msg.content
-        })),
-        {
-          role: "user",
-          content: content
-        }
-      ]
-    });
+    // Zpracování zprávy podle vybraného modelu
+    let responseText;
+    if (settings.model === "claude-3-5-sonnet-20240620") {
+      responseText = await processWithClaude(content, previousMessages, settings);
+    } else if (settings.model === "gemini-pro") {
+      responseText = await processWithGemini(content, previousMessages, settings);
+    } else {
+      throw new Error("Nepodporovaný model");
+    }
 
     // Uložení odpovědi asistenta
     assistantMessage = await prisma.message.create({
       data: {
-        content: response.content[0]?.type === 'text' 
-          ? response.content[0].text 
-          : 'Nepodařilo se získat odpověď',
+        content: responseText,
         role: "assistant",
         chatId: currentChatId,
       },
@@ -179,7 +212,7 @@ export async function POST(req: Request) {
       assistantMessage,
     });
   } catch (error: any) {
-    console.error("Chyba při zpracování zpr��vy:", {
+    console.error("Chyba při zpracování zprávy:", {
       error: error.message,
       type: error.type,
       status: error.status,
