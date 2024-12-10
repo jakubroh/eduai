@@ -14,17 +14,25 @@ export async function POST(req: Request) {
       );
     }
 
-    const { apiKey } = await req.json();
+    const { key, value } = await req.json();
     
+    // Kontrola, zda je klíč validní
+    if (!["ANTHROPIC_API_KEY", "GOOGLE_API_KEY"].includes(key)) {
+      return NextResponse.json(
+        { message: "Neplatný typ API klíče" },
+        { status: 400 }
+      );
+    }
+
     // Zašifrování API klíče před uložením
-    const encryptedKey = await encrypt(apiKey);
+    const encryptedKey = await encrypt(value);
 
     // Uložení do databáze
     await prisma.settings.upsert({
-      where: { key: "ANTHROPIC_API_KEY" },
+      where: { key },
       update: { value: encryptedKey },
       create: {
-        key: "ANTHROPIC_API_KEY",
+        key,
         value: encryptedKey,
       },
     });
