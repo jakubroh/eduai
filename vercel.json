@@ -9,6 +9,7 @@
     "NEXTAUTH_URL": "https://eduai-git-main-jakubrohs-projects.vercel.app",
     "NEXTAUTH_SECRET": "${NEXTAUTH_SECRET}",
     "ANTHROPIC_API_KEY": "sk-ant-api03-7QxB1vPVRJRHHDGXNXGzgWbA-6vF9QZsxJWJEFEGGE0JbQPLKjA7RA0kcXxvEQ-QEwXvAA",
+    "GOOGLE_API_KEY": "AIzaSyC_4vIKS4i9t8Yc-hnKHHVENLeIHwchPxw",
     "ENCRYPTION_KEY": "${ENCRYPTION_KEY}"
   },
   "build": {
